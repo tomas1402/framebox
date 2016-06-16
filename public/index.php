@@ -5,31 +5,30 @@
   * PHP Version 5.4
   */
 
+//Require the controller class
+//require '../App/Controllers/Posts.php';
+
+/**
+  * Autoloader
+  */
+
+spl_autoload_register(function ($class) {
+  $root = dirname(__DIR__); //obtiene el directorio principal.
+  $file = $root . '/' . str_replace('\\', '/', $class) . '.php';
+  if (is_readable($file)) {
+    require $root . '/' . str_replace('\\', '/', $class) . '.php';
+  }
+});
+
 /**
   * Routing
   */
 
-require '../Core/Router.php';
-
-$router = new Router();
+$router = new Core\Router();
 
 //Agregar las rutas.
 $router->add('', ['controller' => 'Home', 'action' => 'index']);
-$router->add('posts', ['controller' => 'Posts', 'action' => 'index']);
-$router->add('posts/new', ['controller' => 'Posts', 'action' => 'new']);
+$router->add('{controller}/{action}');
+$router->add('{controller}/{id:\d+}/{action}');
 
-//Mostrar la tabla de ruteo.
-//echo '<pre>';
-//var_dump($router->getRoutes());
-//echo '</pre>';
-
-//Comparar la ruta requerida.
-$url = $_SERVER['QUERY_STRING'];
-
-if ($router->match($url)) {
-  echo '<pre>';
-  var_dump($router->getParams());
-  echo '</pre>';
-} else {
-  echo "No route found for URL '$url'";
-}
+$router->dispatch($_SERVER['QUERY_STRING']);
